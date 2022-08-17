@@ -1,6 +1,13 @@
-void setup_lora(struct Configuration configuration) {
-  Serial.println("\n##################################### Setup #####################################");
- 
+void setup_lora() { 
+  ResponseStructContainer c;
+  ResponseStructContainer cMi;
+  
+  c = e32ttl100.getConfiguration();
+  cMi = e32ttl100.getModuleInformation();
+  
+  Configuration configuration = *(Configuration*) c.data;
+  ModuleInformation moduleInformation = *(ModuleInformation*)cMi.data;
+
   configuration.ADDL = 0x0;
   configuration.ADDH = 0x1;
   configuration.CHAN = 0x17;
@@ -15,13 +22,14 @@ void setup_lora(struct Configuration configuration) {
   configuration.SPED.uartBaudRate = UART_BPS_9600; //default
   configuration.SPED.uartParity = MODE_00_8N1; //default
 
-  // Set configuration changed and set to not hold the configuration
   ResponseStatus rs = e32ttl100.setConfiguration(configuration, WRITE_CFG_PWR_DWN_LOSE);
-  Serial.println("Response Status: " + rs.getResponseDescription());
-  Serial.print("Response code: ");
-  Serial.print(rs.code);
+
   
+  printConfigStatus(rs);
+  printParameters(configuration);
+  printModuleInformation(moduleInformation);
 
-  Serial.println("\n#################################################################################\n");
-
+  c.close();
+  cMi.close();
+  if(LOG_LEVEL == 0 ) Serial.println("############################### RECEIVER STARTED ################################");
 }
