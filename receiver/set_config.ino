@@ -8,12 +8,12 @@ void setup_lora() {
   Configuration configuration = *(Configuration*) c.data;
   ModuleInformation moduleInformation = *(ModuleInformation*)cMi.data;
 
-  configuration.ADDL = 0x0;
-  configuration.ADDH = 0x1;
-  configuration.CHAN = 0x17;
+  configuration.ADDL = 0x03;
+  configuration.ADDH = 0x00;
+  configuration.CHAN = 0x04;
 
   configuration.OPTION.fec = FEC_0_OFF;
-  configuration.OPTION.fixedTransmission = FT_TRANSPARENT_TRANSMISSION;
+  configuration.OPTION.fixedTransmission = FT_FIXED_TRANSMISSION;
   configuration.OPTION.ioDriveMode = IO_D_MODE_PUSH_PULLS_PULL_UPS;
   configuration.OPTION.transmissionPower = POWER_20; //default
   configuration.OPTION.wirelessWakeupTime = WAKE_UP_250; //default
@@ -22,7 +22,7 @@ void setup_lora() {
   configuration.SPED.uartBaudRate = UART_BPS_9600; //default
   configuration.SPED.uartParity = MODE_00_8N1; //default
 
-  ResponseStatus rs = e32ttl100.setConfiguration(configuration, WRITE_CFG_PWR_DWN_LOSE);
+  ResponseStatus rs = e32ttl100.setConfiguration(configuration, WRITE_CFG_PWR_DWN_SAVE);
 
   
   printConfigStatus(rs);
