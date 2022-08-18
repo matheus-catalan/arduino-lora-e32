@@ -45,17 +45,19 @@ void loop() {
     ResponseStructContainer rsc = e32ttl100.receiveMessage(sizeof(Payload));
     
     struct Payload payload = *(Payload*) rsc.data;
-//    send(&payload);
-    Serial.println("----------------------------------- MESSAGE -------------------------------------");
-    Serial.print("Amount messages -> ");
-    Serial.print(payload.count_message);
-    Serial.print("\nSensor 1 -> ");
-    Serial.print(payload.sensor1);
-    Serial.print("\nSensor 2 -> ");
-    Serial.print(payload.sensor2);
-    Serial.print("\nSensor 3 -> ");
-    Serial.print(payload.sensor3);
-    Serial.println("\n----------------------------------- MESSAGE -------------------------------------");
+    send(&payload);
+    if ( LOG_LEVEL == 0 ){
+      Serial.println("----------------------------------- MESSAGE -------------------------------------");
+      Serial.print("Amount messages -> ");
+      Serial.print(payload.count_message);
+      Serial.print("\nSensor 1 -> ");
+      Serial.print(payload.sensor1);
+      Serial.print("\nSensor 2 -> ");
+      Serial.print(payload.sensor2);
+      Serial.print("\nSensor 3 -> ");
+      Serial.print(payload.sensor3);
+      Serial.println("\n----------------------------------- MESSAGE -------------------------------------");
+    }
     free(rsc.data);
   }
 }
