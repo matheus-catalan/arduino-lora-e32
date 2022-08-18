@@ -8,12 +8,16 @@ void setup_lora() {
   Configuration configuration = *(Configuration*) c.data;
   ModuleInformation moduleInformation = *(ModuleInformation*)cMi.data;
 
-  configuration.ADDL = 0x0;
-  configuration.ADDH = 0x1;
-  configuration.CHAN = 0x17;
+//  configuration.ADDL = 0x0;
+//  configuration.ADDH = 0x1;
+//  configuration.CHAN = 0x17;
+
+   configuration.ADDL = 0x01;
+   configuration.ADDH = 0x00;
+   configuration.CHAN = 0x04;
 
   configuration.OPTION.fec = FEC_0_OFF;
-  configuration.OPTION.fixedTransmission = FT_TRANSPARENT_TRANSMISSION;
+  configuration.OPTION.fixedTransmission = FT_FIXED_TRANSMISSION;
   configuration.OPTION.ioDriveMode = IO_D_MODE_PUSH_PULLS_PULL_UPS;
   configuration.OPTION.transmissionPower = POWER_20; //default
   configuration.OPTION.wirelessWakeupTime = WAKE_UP_250; //default
