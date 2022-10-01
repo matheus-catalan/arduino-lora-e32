@@ -1,7 +1,7 @@
 import serial
 from struct import *
 import json
-ser = serial.Serial('COM3', 9600)
+ser = serial.Serial('/dev/cu.usbmodem14101', 9600)
 ser.flushInput()
 
 while True:

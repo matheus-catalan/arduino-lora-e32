@@ -50,7 +50,7 @@ void setup() {
 	configuration.SPED.uartParity = MODE_00_8N1; //default
 
 	// Set configuration changed and set to not hold the configuration
-	ResponseStatus rs = e32ttl100.setConfiguration(configuration, WRITE_CFG_PWR_DWN_LOSE);
+	ResponseStatus rs = e32ttl100.setConfiguration(configuration);
 	Serial.println(rs.getResponseDescription());
 	Serial.println(rs.code);
 	printParameters(configuration);

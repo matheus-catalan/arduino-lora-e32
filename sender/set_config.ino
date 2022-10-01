@@ -1,3 +1,39 @@
+void setup_dht22(){
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  float f = dht.readTemperature(true);
+  float hif = dht.computeHeatIndex(f, h);
+  float hic = dht.computeHeatIndex(t, h, false);
+
+
+  if (isnan(h) == false || isnan(t) == false || isnan(f) == false) {
+    status_dht22 = true;  
+  }
+
+
+//    printConfigDhtStatus();
+//    printModuleInformationDht(h, t, f, hif, hic); 
+}
+
+void setup_mq2() {
+  status_mq2 = mq2.checkCalibration();
+    
+//  printConfigMqStatus();
+//  printModuleInformationMq();                
+}
+
+void setup_mpu6050(){
+  status_mpu6050 = mpu6050.checkCalibration();
+}
+
+void setup_bmp(){
+  if (bmp.begin()) {
+    status_bmp = true;
+  }
+}
+ 
+
+
 void setup_lora() { 
   ResponseStructContainer c;
   ResponseStructContainer cMi;
@@ -27,13 +63,16 @@ void setup_lora() {
   configuration.SPED.uartParity = MODE_00_8N1; //default
 
   ResponseStatus rs = e32ttl100.setConfiguration(configuration, WRITE_CFG_PWR_DWN_LOSE);
-
+  
+  if(rs.code != 1) {
+    status_lora = true;
+  }
   
   printConfigStatus(rs);
   printParameters(configuration);
   printModuleInformation(moduleInformation);
+  ResponseStatus resetModule();
 
   c.close();
   cMi.close();
-  if(LOG_LEVEL == 0 ) Serial.println("############################### RECEIVER STARTED ################################");
 }

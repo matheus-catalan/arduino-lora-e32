@@ -16,17 +16,26 @@
 #include "Arduino.h"
 #include "LoRa_E32.h"
 
-// ---------- Arduino pins --------------
-//LoRa_E32 e32ttl(2, 3, 5, 7, 6);
-LoRa_E32 e32ttl100(2, 3, 5, 6, 7); // e32 TX e32 RX
+LoRa_E32 e32ttl100(2, 3, 5, 6, 7);
+
 
 #define LOG_LEVEL 0
 
+bool should_next = true;
 struct Payload {
-  float sensor1;
-  float sensor2;
-  float sensor3;
-  int count_message;
+  double temp;
+  double hum;
+  double lgp;
+  double co;
+  double smoke;
+  double pressu = NAN;
+  double alt = NAN;
+  int    AcX;
+  int    AcY;
+  int    AcZ;
+  int    GyX;
+  int    GyY;
+  int    GyZ;
 };
 
 int size_gyro = sizeof(struct Payload);
@@ -36,33 +45,47 @@ void setup() {
   delay(1000);
   
   e32ttl100.begin();
-  delay(500);
   setup_lora();
+  delay(500);
 }
 
 void loop() {
-  if (e32ttl100.available() > 1){
+  char should_read = Serial.read();
+  
+  
+//  if(should_read  == 'y') {
+//    should_next = true;
+//  } else if(should_read == 'n' ) {
+//    should_next = false;
+//  }
+
+  
+  if (e32ttl100.available() > 1 && should_next){
     ResponseStructContainer rsc = e32ttl100.receiveMessage(sizeof(Payload));
     
     struct Payload payload = *(Payload*) rsc.data;
+    
     send(&payload);
-    if ( LOG_LEVEL == 0 ){
-      Serial.println("----------------------------------- MESSAGE -------------------------------------");
-      Serial.print("Amount messages -> ");
-      Serial.print(payload.count_message);
-      Serial.print("\nSensor 1 -> ");
-      Serial.print(payload.sensor1);
-      Serial.print("\nSensor 2 -> ");
-      Serial.print(payload.sensor2);
-      Serial.print("\nSensor 3 -> ");
-      Serial.print(payload.sensor3);
-      Serial.println("\n----------------------------------- MESSAGE -------------------------------------");
-    }
     free(rsc.data);
+    delay(500);
   }
 }
 
-void send (const Payload* table)
-{
-  Serial.write((const char*)table, size_gyro);  // 2 bytes.
+void send (const Payload* table) {
+  digitalWrite(0, HIGH);
+  String payload = String(table->temp, 4) + "/";
+  payload += String(table->hum, 4) + "/";
+  payload += String(table->lgp, 4) + "/";
+  payload += String(table->co, 4) + "/";
+  payload += String(table->smoke, 4) + "/";
+  payload += String(table->pressu, 4) + "/";
+  payload += String(table->alt, 4) + "/";
+  payload += String(table->AcX) + "/";
+  payload += String(table->AcY) + "/";
+  payload += String(table->AcZ) + "/";
+  payload += String(table->GyX) + "/";
+  payload += String(table->GyY) + "/";
+  payload += String(table->GyZ);
+    Serial.println(payload);
+//  Serial.write((const char*)table, size_gyro);  // 2 bytes.
 }
