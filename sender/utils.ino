@@ -1,13 +1,36 @@
+void signal_start(int pin_buzzer = 12){
+  pinMode(pin_buzzer, OUTPUT);
+  digitalWrite(pin_buzzer, LOW);
+  delay(70);
+  digitalWrite(pin_buzzer, HIGH);
+  delay(70);
+  digitalWrite(pin_buzzer, LOW);
+  delay(70);
+  digitalWrite(pin_buzzer, HIGH);
+  delay(70);
+  digitalWrite(pin_buzzer, LOW);
+}
+
+void singnal_status() {
+  digitalWrite(12, LOW);
+  if(status_lora == false) Serial.println("Module LORA-E32 not working");
+  if(status_mq2 == false) Serial.println("Module MQ2 not working");
+  if(status_dht22 == false) Serial.println("Module DHT22 not working");
+  if(status_bmp == false) Serial.println("Module BMP not working");
+  if ( LOG_LEVEL > 0 && status_lora == false) {
+    digitalWrite(12, HIGH);
+    delay(500);
+    digitalWrite(12, LOW);
+  }
+}
 
 void printConfigStatus(struct ResponseStatus rs){
-//  if(LOG_LEVEL == 0) {
     Serial.println("---------------------------------------------------------------------------------");
     Serial.println("** STATUS **");
     Serial.println("Response Status: " + rs.getResponseDescription());
     Serial.print("Response code: ");
     Serial.print(rs.code);
     Serial.println("\n---------------------------------------------------------------------------------\n");
-//  }
 }
 
 void printParameters(struct Configuration configuration) {
@@ -35,7 +58,6 @@ void printParameters(struct Configuration configuration) {
 //  }
 }
 void printModuleInformation(struct ModuleInformation moduleInformation) {
-//  if ( LOG_LEVEL == 0 ){
     Serial.println("---------------------------------------------------------------------------------");
     Serial.println("** MODULE INFORMATIONS **");
   
@@ -45,49 +67,4 @@ void printModuleInformation(struct ModuleInformation moduleInformation) {
     Serial.print(F("Version  : "));  Serial.println(moduleInformation.version, HEX);
     Serial.print(F("Features : "));  Serial.println(moduleInformation.features, HEX);
     Serial.println("---------------------------------------------------------------------------------\n");
-//  }
-}
-
-void printConfigMqStatus() {
-  if(LOG_LEVEL == 0) {
-//    Serial.println("---------------------------------------------------------------------------------");
-//    Serial.println("** STATUS MQ-2 **");
-//    status_mq2 ? Serial.println("Response Status: Success") : Serial.println("Response Status: Failed");
-//    status_mq2 ? Serial.println("Response Code: 1") : Serial.println("Response Code: 0");;
-//    Serial.println("---------------------------------------------------------------------------------\n");
-  }
-}
-
-void printModuleInformationMq() {
-//  Serial.println("---------------------------------------------------------------------------------");
-//  Serial.println("** MODULE INFORMATIONS **");
-//  Serial.println("Ro: " + String(mq2.Ro) + " kohm");
-//  Serial.println("RL value: " + String(mq2.RL_VALUE));
-//  Serial.println("RO clean air factor: " + String(mq2.RO_CLEAN_AIR_FACTOR));
-//  Serial.println("Calibration sample times: " + String(mq2.CALIBARAION_SAMPLE_TIMES) + "ms");
-//  Serial.println("Calibration sample interval: " + String(mq2.CALIBRATION_SAMPLE_INTERVAL));
-//  Serial.println("Read sample times: " + String(mq2.READ_SAMPLE_TIMES));
-//  Serial.println("Read sample interval: " + String(mq2.READ_SAMPLE_INTERVAL) + "ms");
-//  
-//  Serial.println("---------------------------------------------------------------------------------\n");
-}
-
-void printConfigDhtStatus() {
-//  if(LOG_LEVEL == 0) {
-//    Serial.println("---------------------------------------------------------------------------------");
-//    Serial.println("** STATUS DHT22 **");
-//    status_dht22 ? Serial.println("Response Status: Success") : Serial.println("Response Status: Failed");
-//    status_dht22 ? Serial.println("Response Code: 1") : Serial.println("Response Code: 0");;
-//    Serial.println("---------------------------------------------------------------------------------\n");
-//  }
-}
-
-
-void printModuleInformationDht(float h, float t, float f, float hif, float hic) {
-//  Serial.println("---------------------------------------------------------------------------------");
-//  Serial.println("** MODULE INFORMATIONS **");
-//  Serial.println("Humidity: " + String(h) + "%");
-//  Serial.println("Temperature: " + String(t) + "°C");
-//  Serial.println("Heat index: " + String(hic) + "°C " + String(hif) + "°F");
-//  Serial.println("---------------------------------------------------------------------------------\n");
 }

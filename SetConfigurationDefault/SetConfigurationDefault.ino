@@ -15,8 +15,9 @@
  */
 #include "Arduino.h"
 #include "LoRa_E32.h"
+//tx-rx-aux-m0-m1
 
-LoRa_E32 e32ttl100(2, 3, 5, 6, 7); // e32 TX e32 RX
+LoRa_E32 e32ttl100(2, 3, 5, 6, 7);
 void printParameters(struct Configuration configuration);
 void printModuleInformation(struct ModuleInformation moduleInformation);
 
@@ -35,19 +36,34 @@ void setup() {
 	Serial.println(c.status.code);
 
 	printParameters(configuration);
-	configuration.ADDL = 0x0;
-	configuration.ADDH = 0x1;
-	configuration.CHAN = 0x17;
+//	configuration.ADDL = 0x0;
+//	configuration.ADDH = 0x1;
+//	configuration.CHAN = 0x17;
+//
+//	configuration.OPTION.fec = FEC_0_OFF;
+//	configuration.OPTION.fixedTransmission = FT_TRANSPARENT_TRANSMISSION;
+//	configuration.OPTION.ioDriveMode = IO_D_MODE_PUSH_PULLS_PULL_UPS;
+//	configuration.OPTION.transmissionPower = POWER_20; //default
+//	configuration.OPTION.wirelessWakeupTime = WAKE_UP_250; //default
+//
+//	configuration.SPED.airDataRate =  AIR_DATA_RATE_010_24; //default
+//	configuration.SPED.uartBaudRate = UART_BPS_9600; //default
+//	configuration.SPED.uartParity = MODE_00_8N1; //default
 
-	configuration.OPTION.fec = FEC_0_OFF;
-	configuration.OPTION.fixedTransmission = FT_TRANSPARENT_TRANSMISSION;
-	configuration.OPTION.ioDriveMode = IO_D_MODE_PUSH_PULLS_PULL_UPS;
-	configuration.OPTION.transmissionPower = POWER_20; //default
-	configuration.OPTION.wirelessWakeupTime = WAKE_UP_250; //default
+   configuration.ADDL = 0x01;
+   configuration.ADDH = 0x00;
+   configuration.CHAN = 0x04;
 
-	configuration.SPED.airDataRate =  AIR_DATA_RATE_010_24; //default
-	configuration.SPED.uartBaudRate = UART_BPS_9600; //default
-	configuration.SPED.uartParity = MODE_00_8N1; //default
+  configuration.OPTION.fec = FEC_0_OFF;
+  configuration.OPTION.fixedTransmission = FT_FIXED_TRANSMISSION;
+  configuration.OPTION.ioDriveMode = IO_D_MODE_PUSH_PULLS_PULL_UPS;
+  configuration.OPTION.transmissionPower = POWER_20; //default
+  configuration.OPTION.wirelessWakeupTime = WAKE_UP_250; //default
+
+  configuration.SPED.airDataRate =  AIR_DATA_RATE_010_24; //default
+  configuration.SPED.uartBaudRate = UART_BPS_9600; //default
+  configuration.SPED.uartParity = MODE_00_8N1; //default
+
 
 	// Set configuration changed and set to not hold the configuration
 	ResponseStatus rs = e32ttl100.setConfiguration(configuration);
@@ -58,8 +74,26 @@ void setup() {
 }
 
 void loop() {
-
+  struct Payload {
+    double temp = NAN;
+    double hum = NAN;
+    double lgp = NAN;
+    double co = NAN;
+    double smoke = NAN;
+    double pressu = NAN;
+    double alt = NAN;
+    int    AcX = 0;
+    int    AcY = 0;
+    int    AcZ = 0;
+    int    GyX = 0;
+    int    GyY = 0;
+    int    GyZ = 0;
+  };  
+  struct Payload payload;
+  ResponseStatus rs = e32ttl100.sendFixedMessage(0, 3, 0x04, &payload, sizeof(Payload));
+  Serial.println("enviou essa caralha");
 }
+
 void printParameters(struct Configuration configuration) {
 	Serial.println("----------------------------------------");
 
@@ -80,5 +114,7 @@ void printParameters(struct Configuration configuration) {
 	Serial.print(F("OptionPower        : "));  Serial.print(configuration.OPTION.transmissionPower, BIN);Serial.print(" -> "); Serial.println(configuration.OPTION.getTransmissionPowerDescription());
 
 	Serial.println("----------------------------------------");
+ 
+  
 
 }

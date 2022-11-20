@@ -19,14 +19,14 @@
    -- MQ-2 --
    VCC ---- VCC
    GND ---- GND
-   DO ----- 9
+   DO ----- PIN 9
    AO  ---- AO
 
-   -- MPU6050 --
+   -- BMP280 --
    VCC ---- VCC
    GND ---- GND
-   SCI ---- A5
-   SDA ---- A0
+   SCL ---- A4
+   SDA ---- A5
 
    LOG_LEVEL 0 -> DEBUG
    LOG_LEVEL 1 -> EXECUTION
@@ -36,15 +36,15 @@
 #include "LoRa_E32.h"
 #include <DHT.h>
 #include "MQ2.h"
-#include "MPU6050.h"
+#include "MQ9.h"
 #include <Adafruit_BMP280.h>
 #define LOG_LEVEL 1
-
 LoRa_E32 e32ttl100(2, 3, 5, 6, 7);
 DHT dht(8, DHT22);
 MQ2 mq2(A0);
-MPU6050 mpu6050(0x68);
+MQ9 mq9(A1);
 Adafruit_BMP280 bmp;
+
 
 struct Payload {
   double temp = NAN;
@@ -52,26 +52,22 @@ struct Payload {
   double lgp = NAN;
   double co = NAN;
   double smoke = NAN;
+  double ch4 = NAN;
   double pressu = NAN;
   double alt = NAN;
-  int    AcX = 0;
-  int    AcY = 0;
-  int    AcZ = 0;
-  int    GyX = 0;
-  int    GyY = 0;
-  int    GyZ = 0;
 };
 int   count = 0;
 
 boolean status_lora = false;
 boolean status_mq2 = false;
+boolean status_mq9 = false;
 boolean status_dht22 = false;
-boolean status_mpu6050 = false;
 boolean status_bmp = false;
-unsigned long time = millis();
 struct Payload payload;
 
 void setup() {
+  Serial.begin(9600);
+  delay(500);
   pinMode(12, OUTPUT);
   digitalWrite(12, LOW);
   delay(70);
@@ -82,33 +78,29 @@ void setup() {
   digitalWrite(12, HIGH);
   delay(70);
   digitalWrite(12, LOW);
-
-
-  Serial.begin(9600);
-  delay(500);
-
+  
   e32ttl100.begin();
   setup_lora();
+  delay(500);
 
   mq2.begin();
   setup_mq2();
 
-  mpu6050.begin();
-  setup_mpu6050();
+  mq9.begin();
+  setup_mq9();
 
   dht.begin();
   setup_dht22();
 
-  setup_bmp();
+//  setup_bmp();
+//  bmp.begin();
 
-  delay(500);
+//  delay(500);
 }
 
 void loop() {
-
-  Serial.println("teste");
   get_value();
-  singnal_status();
+
   ResponseStatus rs = e32ttl100.sendFixedMessage(0, 3, 0x04, &payload, sizeof(Payload));
   
   if(rs.code != 1) {
@@ -116,28 +108,27 @@ void loop() {
   } else {
     status_lora = true;
   }
-  
-  if (LOG_LEVEL == 0 ) {
-    Serial.println("--------------------------------- SEND MESSAGE ----------------------------------");
-    Serial.println("Count         ->  " + String(count++));
-    Serial.println("TEMPERATURA   ->  " + String(payload.temp));
-    Serial.println("HUMIDADE      ->  " + String(payload.hum));
-    Serial.println("GLP           ->  " + String(payload.lgp, 10));
-    Serial.println("CO2           ->  " + String(payload.co, 10));
-    Serial.println("FUMAÇA        ->  " + String(payload.smoke, 10));
-    Serial.println("PRESSÃO       ->  " + String(payload.pressu, 2) + " atm");
-    Serial.println("ALTITUDE      ->  " + String(payload.alt, 2) + " m");
-    Serial.println("ACELEROMETRO  ->  X: " + String(payload.AcX) + " Y: " + String(payload.AcY) + " Z: " + String(payload.AcZ));
-    Serial.println("GIROSCOPIIO   ->  X: " + String(payload.GyX) + " Y: " + String(payload.GyY) + " Z: " + String(payload.GyZ));
-  }
 
-  digitalWrite(12, LOW);
+  singnal_status();
+
+  Serial.println("--------------------------------- SEND MESSAGE ----------------------------------");
+  Serial.println("Response status send: " + String(rs.getResponseDescription()));
+  Serial.println("Count         ->  " + String(count++));
+  Serial.println("TEMPERATURA   ->  " + String(payload.temp));
+  Serial.println("HUMIDADE      ->  " + String(payload.hum));
+  Serial.println("GLP           ->  " + String(payload.lgp, 10));
+  Serial.println("CO2           ->  " + String(payload.co, 10));
+  Serial.println("FUMAÇA        ->  " + String(payload.smoke, 10));
+  Serial.println("CH4           ->  " + String(payload.ch4, 10));
+  Serial.println("PRESSÃO       ->  " + String(payload.pressu, 2) + " atm");
+  Serial.println("ALTITUDE      ->  " + String(payload.alt, 2) + " m");
+
   delay(500);
 
 }
 
 void get_value() {
-  mpu6050.update();
+  
   if (status_dht22) {
     payload.temp = dht.readTemperature();
     payload.hum = dht.readHumidity();
@@ -164,31 +155,9 @@ void get_value() {
     payload.smoke = NAN;
   }
 
-  if (status_mpu6050) {
-    payload.AcX = mpu6050.getAx();
-    payload.AcY = mpu6050.getAy();
-    payload.AcZ = mpu6050.getAz();
-    payload.GyX = mpu6050.getGx();
-    payload.GyY = mpu6050.getGy();
-    payload.GyZ = mpu6050.getGz();
+   if (status_mq9) {
+    payload.ch4 = mq9.readCH4();
   } else {
-    payload.AcX = 0;
-    payload.AcY = 0;
-    payload.AcZ = 0;
-    payload.GyX = 0;
-    payload.GyY = 0;
-    payload.GyZ = 0;
-  }
-}
-
-void singnal_status() {
-  if(status_lora == false) Serial.println("Module LORA-E32 not working");
-  if(status_mq2 == false) Serial.println("Module MQ2 not working");
-  if(status_dht22 == false) Serial.println("Module DHT2 not working");
-  if(status_mpu6050 == false) Serial.println("Module MPU6050 not working");
-  if(status_bmp == false) Serial.println("Module BMP not working");
-  Serial.println(status_lora);
-  if ( LOG_LEVEL > 0 && status_lora == false) {
-    digitalWrite(12, HIGH);
+    payload.ch4 = NAN;
   }
 }

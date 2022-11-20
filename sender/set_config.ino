@@ -9,25 +9,18 @@ void setup_dht22(){
   if (isnan(h) == false || isnan(t) == false || isnan(f) == false) {
     status_dht22 = true;  
   }
-
-
-//    printConfigDhtStatus();
-//    printModuleInformationDht(h, t, f, hif, hic); 
 }
 
 void setup_mq2() {
-  status_mq2 = mq2.checkCalibration();
-    
-//  printConfigMqStatus();
-//  printModuleInformationMq();                
+  status_mq2 = mq2.checkCalibration();             
 }
 
-void setup_mpu6050(){
-  status_mpu6050 = mpu6050.checkCalibration();
+void setup_mq9() {
+  status_mq9 = mq9.checkCalibration();             
 }
 
 void setup_bmp(){
-  if (bmp.begin()) {
+  if (bmp.begin(0x76)) {
     status_bmp = true;
   }
 }
@@ -54,9 +47,11 @@ void setup_lora() {
 
   configuration.OPTION.fec = FEC_0_OFF;
   configuration.OPTION.fixedTransmission = FT_FIXED_TRANSMISSION;
-  configuration.OPTION.ioDriveMode = IO_D_MODE_PUSH_PULLS_PULL_UPS;
+//  configuration.OPTION.ioDriveMode = IO_D_MODE_PUSH_PULLS_PULL_UPS;
+  configuration.OPTION.ioDriveMode = IO_D_MODE_OPEN_COLLECTOR;
   configuration.OPTION.transmissionPower = POWER_20; //default
-  configuration.OPTION.wirelessWakeupTime = WAKE_UP_250; //default
+//  configuration.OPTION.wirelessWakeupTime = WAKE_UP_1750; //default
+configuration.OPTION.wirelessWakeupTime = WAKE_UP_250;
 
   configuration.SPED.airDataRate =  AIR_DATA_RATE_010_24; //default
   configuration.SPED.uartBaudRate = UART_BPS_9600; //default
