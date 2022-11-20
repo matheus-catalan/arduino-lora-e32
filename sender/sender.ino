@@ -42,8 +42,6 @@
 LoRa_E32 e32ttl100(2, 3, 5, 6, 7);
 DHT dht(8, DHT22);
 MQ2 mq2(A0);
-MQ9 mq9(A1);
-Adafruit_BMP280 bmp;
 
 
 struct Payload {
@@ -52,17 +50,11 @@ struct Payload {
   double lgp = NAN;
   double co = NAN;
   double smoke = NAN;
-  double ch4 = NAN;
-  double pressu = NAN;
-  double alt = NAN;
 };
-int   count = 0;
 
 boolean status_lora = false;
 boolean status_mq2 = false;
-boolean status_mq9 = false;
 boolean status_dht22 = false;
-boolean status_bmp = false;
 struct Payload payload;
 
 void setup() {
@@ -86,16 +78,9 @@ void setup() {
   mq2.begin();
   setup_mq2();
 
-  mq9.begin();
-  setup_mq9();
-
   dht.begin();
   setup_dht22();
 
-//  setup_bmp();
-//  bmp.begin();
-
-//  delay(500);
 }
 
 void loop() {
@@ -112,16 +97,11 @@ void loop() {
   singnal_status();
 
   Serial.println("--------------------------------- SEND MESSAGE ----------------------------------");
-  Serial.println("Response status send: " + String(rs.getResponseDescription()));
-  Serial.println("Count         ->  " + String(count++));
   Serial.println("TEMPERATURA   ->  " + String(payload.temp));
   Serial.println("HUMIDADE      ->  " + String(payload.hum));
   Serial.println("GLP           ->  " + String(payload.lgp, 10));
   Serial.println("CO2           ->  " + String(payload.co, 10));
   Serial.println("FUMAÇA        ->  " + String(payload.smoke, 10));
-  Serial.println("CH4           ->  " + String(payload.ch4, 10));
-  Serial.println("PRESSÃO       ->  " + String(payload.pressu, 2) + " atm");
-  Serial.println("ALTITUDE      ->  " + String(payload.alt, 2) + " m");
 
   delay(500);
 
@@ -137,14 +117,6 @@ void get_value() {
     payload.hum = NAN;
   }
 
-  if (status_bmp) {
-    payload.pressu = bmp.readPressure();
-    payload.alt = bmp.readAltitude(1013.25);
-  } else {
-    payload.pressu = NAN;
-    payload.alt = NAN;
-  }
-
   if (status_mq2) {
     payload.lgp = mq2.readLPG();
     payload.co = mq2.readCO();
@@ -153,11 +125,5 @@ void get_value() {
     payload.lgp = NAN;
     payload.co = NAN;
     payload.smoke = NAN;
-  }
-
-   if (status_mq9) {
-    payload.ch4 = mq9.readCH4();
-  } else {
-    payload.ch4 = NAN;
   }
 }

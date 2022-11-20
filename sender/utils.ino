@@ -16,8 +16,8 @@ void singnal_status() {
   if(status_lora == false) Serial.println("Module LORA-E32 not working");
   if(status_mq2 == false) Serial.println("Module MQ2 not working");
   if(status_dht22 == false) Serial.println("Module DHT22 not working");
-  if(status_bmp == false) Serial.println("Module BMP not working");
-  if ( LOG_LEVEL > 0 && status_lora == false) {
+  
+  if (status_lora == false) {
     digitalWrite(12, HIGH);
     delay(500);
     digitalWrite(12, LOW);
@@ -34,7 +34,6 @@ void printConfigStatus(struct ResponseStatus rs){
 }
 
 void printParameters(struct Configuration configuration) {
-//  if ( LOG_LEVEL == 0 ){
     Serial.println("---------------------------------------------------------------------------------");
     Serial.println("** PARAMETERS **");
     
@@ -55,7 +54,6 @@ void printParameters(struct Configuration configuration) {
     Serial.print(F("OptionPower BIN       : "));  Serial.print(configuration.OPTION.transmissionPower, BIN); Serial.print(" -> "); Serial.println(configuration.OPTION.getTransmissionPowerDescription());
     
     Serial.println("---------------------------------------------------------------------------------\n");
-//  }
 }
 void printModuleInformation(struct ModuleInformation moduleInformation) {
     Serial.println("---------------------------------------------------------------------------------");
