@@ -15,10 +15,6 @@ void setup_mq2() {
   status_mq2 = mq2.checkCalibration();             
 }
 
-void setup_mq9() {
-  status_mq9 = mq9.checkCalibration();             
-}
-
 
 void setup_lora() { 
   ResponseStructContainer c;

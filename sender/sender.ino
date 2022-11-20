@@ -36,12 +36,21 @@
 #include "LoRa_E32.h"
 #include <DHT.h>
 #include "MQ2.h"
-#include "MQ9.h"
-#include <Adafruit_BMP280.h>
+
 #define LOG_LEVEL 1
-LoRa_E32 e32ttl100(2, 3, 5, 6, 7);
-DHT dht(8, DHT22);
-MQ2 mq2(A0);
+#define LORA_TX 2
+#define LORA_RX 3
+#define LORA_M0 7
+#define LORA_M1 6
+#define LORA_AUX 5 
+#define DHT_PIN 8
+#define MQ_PIN A0
+
+LoRa_E32 e32ttl100(LORA_TX, LORA_RX, LORA_AUX, LORA_M1, LORA_M0);
+DHT dht(DHT_PIN, DHT22);
+MQ2 mq2(MQ_PIN);
+
+
 
 
 struct Payload {
